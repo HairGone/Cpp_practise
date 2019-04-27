@@ -1,0 +1,312 @@
+// 二叉搜索树.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
+//
+
+#include "pch.h"
+#include <iostream>
+#include <stdio.h>
+
+typedef struct tree
+{
+	int data;
+	struct tree* left;
+	struct tree* right;
+}TreeNode;
+
+TreeNode* init()
+{
+	TreeNode* tr;
+	/*tr = (TreeNode*)malloc(sizeof(TreeNode));
+	tr->right = tr->left = NULL;*/
+	return NULL;
+}
+void preorder( TreeNode* tr)
+{
+	//printf("preorder data:\n");
+	if (tr != NULL)
+	{
+		printf("%d\n", tr->data);
+		preorder(tr->left);
+		preorder(tr->right);
+	}
+}
+
+void inorder(TreeNode *tr)
+{
+	//printf("inorder data:\n");
+	if (tr != NULL)
+	{
+		
+		inorder(tr->left);
+		printf("%d\n", tr->data);
+		inorder(tr->right);
+	}
+}
+
+void postorder(TreeNode *tr)
+{
+	printf("postorder data:\n");
+	if (tr != NULL)
+	{
+		postorder(tr->left);
+		postorder(tr->right);
+		printf("%d\n", tr->data);
+	}
+}
+bool isRoot(TreeNode *tr)
+{
+	if ((tr->left == NULL) && (tr->right == NULL))
+	{
+		return true;
+	}
+	else
+		return false;
+}
+static void insert(TreeNode** tr, int DATA)
+{
+	
+	if ((*tr)==NULL)
+	{
+		(*tr) = (TreeNode*)malloc(sizeof(TreeNode));
+		(*tr)->data = DATA;
+		(*tr)->left = (*tr)->right = NULL;
+	
+	}
+	else {
+		if (DATA > ((*tr)->data))
+		{
+			//printf("fck");
+			insert(&(*tr)->right, DATA);
+		}
+		else
+		{
+			//printf("fck");
+			insert(&(*tr)->left, DATA);
+		}
+	}
+}
+
+TreeNode* search(TreeNode*tr, int tar)
+{
+	while (tr)
+	{
+		if (tr->data == tar)
+			return tr;
+		else if (tar > tr->data)
+			tr = tr->right;
+		else
+			tr = tr->left;
+	}
+	return NULL;
+}
+//int f(int a, int b)
+//{
+//	a = 0;
+//	b = 0;
+//	return 1;
+//}
+int f1(int *a, int *b)
+{
+	int t;
+	/*int *p=a;
+	
+	*p = 2;*/
+	/*t = *a;
+	*a = *b;
+	*b = t;*/
+	a = a+1;
+	printf("a:%d\n b:%d\n ", *a, b);
+	//printf("a:%d\n b:%d\n p:%d\n *p:%d\n", a, b, p,*p);
+	return *a;
+}
+TreeNode * maxValue(TreeNode *tr)
+{
+	if (tr)
+	{
+		while (tr->right)
+		{
+			tr = tr->right;
+		}
+		return tr;
+	}
+	return NULL;
+}
+TreeNode * minValue(TreeNode *tr)
+{
+	if (tr)
+	{
+		while (tr->left)
+		{
+			tr = tr->left;
+		}
+		return tr;
+	}
+	return NULL;
+}
+
+TreeNode* searchRecursive(TreeNode* tr, int find)
+{
+	if (!tr) return NULL;
+	if (tr->data == find) return tr;
+	else if (tr->data < find) return search(tr->right, find);
+	else return search(tr->left, find);
+}
+
+TreeNode* getParent(TreeNode *tr, TreeNode *cur)
+{
+	if (!tr)
+		return NULL;
+	else
+	{
+		if (tr->left == cur || tr->right == cur)
+			return tr;
+		getParent(tr->left, cur);
+		getParent(tr->right, cur);
+	}
+}
+
+void deleteTreeNode(TreeNode ** ptr, TreeNode *pfind)
+{
+	TreeNode *t = *ptr;
+	TreeNode*parent;//未初始化
+	if (t == NULL || pfind == NULL) return;
+	//左空右空
+	if (pfind->right == NULL && pfind->left == NULL)
+	{
+		if (pfind == t) {
+			free(t);
+			*ptr = NULL;
+			return;
+		}
+		parent = getParent(t, pfind);
+		if (parent)
+		{
+			if (parent->left == pfind)
+			{
+				free(parent->left);
+				parent->left = NULL;
+			}
+			else
+			{
+				free(parent->right);
+				parent->right = NULL;
+			}
+		}
+		
+
+	}
+	//left void right exist
+	else if (pfind->right != NULL && pfind->left == NULL)
+	{
+		if (pfind == t) {
+			*ptr=t->right;
+			free(t);
+			return;
+		}
+
+		parent = getParent(t, pfind);
+		if (parent->left == pfind)
+		{
+			parent->left = pfind->right;
+			free(pfind);
+		}
+		else
+		{
+			parent->right = pfind->right;
+			free(pfind);
+		}
+	}
+	//左有右空
+	else if (pfind->right == NULL && pfind->left != NULL)
+	{
+		if (pfind == t) {
+			*ptr = t->left;
+			free(t);
+			return;
+		}
+
+		parent = getParent(t, pfind);
+		if (parent->left == pfind)
+		{
+			parent->left = pfind->left;
+			free(pfind);
+		}
+		else
+		{
+			parent->right = pfind->left;
+			free(pfind);
+		}
+	}
+	//left exist right exist 找到左边最大值或者右边最小值代替节点；这里选用右边最小值
+	else if (pfind->right != NULL && pfind->left != NULL)
+	{
+		TreeNode* minRight = minValue(pfind->right);
+		parent = getParent(*ptr,minRight);
+		pfind->data = minRight->data;
+		if (parent == t||parent==pfind)
+			parent->right = minRight->right;
+		else
+			parent->left = minRight->right;
+		free(minRight);
+
+
+	}
+
+}
+
+//void deleteTree();
+//void destoryTree();
+
+int main()
+{
+	TreeNode * tr=init();
+	insert(&tr, 30);
+	insert(&tr, 8);
+	insert(&tr, 36);
+	insert(&tr, 15);
+	//insert(&tr, 4);
+	insert(&tr, 32);
+	insert(&tr, 100);
+	//insert(&tr, 7);
+	printf("preorder data:\n");
+	preorder(tr);
+
+	/*printf("inorder data:\n");
+	inorder(tr);*/
+
+	printf("max is %d\n", maxValue(tr)->data);
+	printf("min is %d\n", minValue(tr)->data);
+	//printf("search is %d\n", search(tr,100)->data);
+	printf("parent of %d is %d \n", 32, getParent(tr, search(tr,32))->data);
+	deleteTreeNode(&tr, search(tr, 30));
+	printf("preorder data:\n");
+	preorder(tr);
+	//postorder(tr);
+	TreeNode *n;
+	/*n = (TreeNode*)malloc(sizeof(TreeNode));
+	if (n == NULL)
+		printf("fck");
+	else
+		printf("\n??");
+	return 1;
+	getchar();*/
+	/*int a, b;
+	a = 10; b = 3;
+	f(a, b);
+	printf("a=%d ,b=%d \n", a, b);
+	f1(&a, &b);
+	printf("a=%d ,b=%d \n", a, b);
+	printf("a:%d\n b:%d\n", &a, &b);*/
+	
+	getchar();
+}
+
+// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
+// 调试程序: F5 或调试 >“开始调试”菜单
+
+// 入门提示: 
+//   1. 使用解决方案资源管理器窗口添加/管理文件
+//   2. 使用团队资源管理器窗口连接到源代码管理
+//   3. 使用输出窗口查看生成输出和其他消息
+//   4. 使用错误列表窗口查看错误
+//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
+//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件
